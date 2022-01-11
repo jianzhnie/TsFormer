@@ -4,7 +4,7 @@ TsFormer is a toolbox that implement transformer models on Time series data
 
 ## Todo
 
-1. data preprocess 
+1. data preprocess
 - gefcom2014
 - uci
 - ETT
@@ -23,4 +23,3 @@ TsFormer is a toolbox that implement transformer models on Time series data
 - autoformer
 
 4. train and evaluate
-
