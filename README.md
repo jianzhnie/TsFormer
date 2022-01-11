@@ -11,7 +11,7 @@ TsFormer is a toolbox that implement transformer models on Time series data
 
 2. dataloader
 
-dataloaders for models 
+- dataloaders
 
 3. models
 
