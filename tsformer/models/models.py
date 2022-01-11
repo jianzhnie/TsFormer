@@ -1,21 +1,20 @@
+import math
+
 import torch
 import torch.nn as nn
-
-import math
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
 class DNN(nn.Module):
-    """Deep Neural Network"""
+    """Deep Neural Network."""
+
     def __init__(self, input_size, hidden_size, output_size):
         super(DNN, self).__init__()
 
         self.main = nn.Sequential(
-            nn.Linear(input_size, hidden_size),
-            nn.ReLU(inplace=True),
-            nn.Linear(hidden_size, output_size)
-        )
+            nn.Linear(input_size, hidden_size), nn.ReLU(inplace=True),
+            nn.Linear(hidden_size, output_size))
 
     def forward(self, x):
         x = x.squeeze(dim=2)
@@ -24,19 +23,16 @@ class DNN(nn.Module):
 
 
 class CNN(nn.Module):
-    """Convolutional Neural Networks"""
+    """Convolutional Neural Networks."""
+
     def __init__(self, input_size, hidden_dim, output_size):
         super(CNN, self).__init__()
 
         self.main = nn.Sequential(
-            nn.Conv1d(in_channels=input_size, out_channels=hidden_dim, kernel_size=1),
-            nn.ReLU(),
-
-            nn.Flatten(),
-
-            nn.Linear(hidden_dim, 10),
-            nn.Linear(10, output_size)
-        )
+            nn.Conv1d(
+                in_channels=input_size, out_channels=hidden_dim,
+                kernel_size=1), nn.ReLU(), nn.Flatten(),
+            nn.Linear(hidden_dim, 10), nn.Linear(10, output_size))
 
     def forward(self, x):
         out = self.main(x)
@@ -44,7 +40,8 @@ class CNN(nn.Module):
 
 
 class RNN(nn.Module):
-    """Vanilla RNN"""
+    """Vanilla RNN."""
+
     def __init__(self, input_size, hidden_size, num_layers, output_size):
         super(RNN, self).__init__()
 
@@ -53,10 +50,11 @@ class RNN(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
 
-        self.rnn = nn.RNN(input_size=input_size,
-                          hidden_size=hidden_size,
-                          num_layers=num_layers,
-                          batch_first=True)
+        self.rnn = nn.RNN(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True)
 
         self.fc = nn.Linear(hidden_size, output_size)
 
@@ -69,8 +67,14 @@ class RNN(nn.Module):
 
 
 class LSTM(nn.Module):
-    """Long Short Term Memory"""
-    def __init__(self, input_size, hidden_size, num_layers, output_size, bidirectional=False):
+    """Long Short Term Memory."""
+
+    def __init__(self,
+                 input_size,
+                 hidden_size,
+                 num_layers,
+                 output_size,
+                 bidirectional=False):
         super(LSTM, self).__init__()
 
         self.input_size = input_size
@@ -79,11 +83,12 @@ class LSTM(nn.Module):
         self.output_size = output_size
         self.bidirectional = bidirectional
 
-        self.lstm = nn.LSTM(input_size=input_size,
-                            hidden_size=hidden_size,
-                            num_layers=num_layers,
-                            batch_first=True,
-                            bidirectional=bidirectional)
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=bidirectional)
 
         if self.bidirectional:
             self.fc = nn.Linear(hidden_size * 2, output_size)
@@ -99,7 +104,8 @@ class LSTM(nn.Module):
 
 
 class GRU(nn.Module):
-    """Gat e Recurrent Unit"""
+    """Gat e Recurrent Unit."""
+
     def __init__(self, input_size, hidden_size, num_layers, output_size):
         super(GRU, self).__init__()
 
@@ -108,10 +114,11 @@ class GRU(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
 
-        self.gru = nn.GRU(input_size=input_size,
-                          hidden_size=hidden_size,
-                          num_layers=num_layers,
-                          batch_first=True)
+        self.gru = nn.GRU(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True)
 
         self.fc = nn.Linear(hidden_size, output_size)
 
@@ -124,8 +131,15 @@ class GRU(nn.Module):
 
 
 class AttentionalLSTM(nn.Module):
-    """LSTM with Attention"""
-    def __init__(self, input_size, qkv, hidden_size, num_layers, output_size, bidirectional=False):
+    """LSTM with Attention."""
+
+    def __init__(self,
+                 input_size,
+                 qkv,
+                 hidden_size,
+                 num_layers,
+                 output_size,
+                 bidirectional=False):
         super(AttentionalLSTM, self).__init__()
 
         self.input_size = input_size
@@ -141,11 +155,12 @@ class AttentionalLSTM(nn.Module):
         self.attn = nn.Linear(qkv, input_size)
         self.scale = math.sqrt(qkv)
 
-        self.lstm = nn.LSTM(input_size=input_size,
-                            hidden_size=hidden_size,
-                            num_layers=num_layers,
-                            batch_first=True,
-                            bidirectional=bidirectional)
+        self.lstm = nn.LSTM(
+            input_size=input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=bidirectional)
 
         if bidirectional:
             self.fc = nn.Linear(hidden_size * 2, output_size)

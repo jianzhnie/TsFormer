@@ -1,19 +1,25 @@
-import pandas as pd
+import io
+import logging
 import os
-from dts import config, logger
-from dts.datasets.utils import save_data, load_prebuilt_data
-from dts.utils.utils import set_datetime_index
-from dts.utils.split import *
-from sklearn.preprocessing import StandardScaler
 import warnings
+import zipfile
 from datetime import datetime
-import requests, zipfile, io
+
+import numpy as np
+import pandas as pd
+import requests
+from sklearn.preprocessing import StandardScaler
+
+from tsformer.utils.utils import set_datetime_index
+
+logger = logging.getLogger('log')
 
 NAME = 'uci'
 SAMPLES_PER_DAY = 96
 FREQ = '15T'
 TARGET = 'Global_active_power'
 DATETIME = 'datetime'
+config = {'data': 'uci'}
 
 
 def download():
@@ -29,8 +35,9 @@ def download():
     z.extractall(path=config['data'])
     new_loc = os.path.join(config['data'],
                            'UCI_household_power_consumption.csv')
-    os.rename(os.path.join(config['data'], 'household_power_consumption.txt'),
-              new_loc)
+    os.rename(
+        os.path.join(config['data'], 'household_power_consumption.txt'),
+        new_loc)
     logger.info('File extracted and available at {}'.format(new_loc))
     process_csv()
     logger.info(
@@ -40,12 +47,11 @@ def download():
 
 
 def process_csv():
-    """
-    Parse the datetime field, Sort the values accordingly and save the new dataframe to disk
-    """
-    df = pd.read_csv(os.path.join(config['data'],
-                                  'UCI_household_power_consumption.csv'),
-                     sep=';')
+    """Parse the datetime field, Sort the values accordingly and save the new
+    dataframe to disk."""
+    df = pd.read_csv(
+        os.path.join(config['data'], 'UCI_household_power_consumption.csv'),
+        sep=';')
     df[DATETIME] = list(
         map(
             lambda d: datetime.combine(
@@ -59,13 +65,14 @@ def process_csv():
     def parse(x):
         try:
             return np.float64(x)
-        except:
+        except ValueError:
             return np.nan
 
     df[TARGET] = df[TARGET].apply(lambda x: parse(x))
-    df.to_csv(os.path.join(config['data'],
-                           'UCI_household_power_consumption_synth.csv'),
-              index=False)
+    df.to_csv(
+        os.path.join(config['data'],
+                     'UCI_household_power_consumption_synth.csv'),
+        index=False)
 
 
 def load_raw_dataset():
@@ -73,26 +80,26 @@ def load_raw_dataset():
     Load the dataset as is
     :return: pandas.DataFrame: sorted dataframe with parsed datetime
     """
-    df = pd.read_csv(os.path.join(config['data'],
-                                  'UCI_household_power_consumption.csv'),
-                     sep=';')
+    df = pd.read_csv(
+        os.path.join(config['data'], 'UCI_household_power_consumption.csv'),
+        sep=';')
     return df
 
 
 def load_dataset(fill_nan='median', get_dates_dict=False):
-    """
-    Load the dataset resampled at a frequency of 15 minutes
+    """Load the dataset resampled at a frequency of 15 minutes.
+
     :param fill_nan: string that identifies how NaN values should be filled. Options are:
         -bfill: fill NaN value at index i with value at index i-1
         -ffill: fill NaN value at index i with value at index i+1
         -mean: fill NaN value at index i  with the mean value over all dataset at the same hour,minute
         -median: fill NaN value at index i  with the median value over all dataset at the same hour,minute
         -drop: drop all rows with missing values
-    :param get_dates_dict: if True, return also the dict containing the map 
+    :param get_dates_dict: if True, return also the dict containing the map
                            between each dataframe index to a datetime
-    :return: 
+    :return:
         - pandas.DataFrame: sorted dataframe with parsed datetime
-        - dict: map each dataframe index to a datetime   
+        - dict: map each dataframe index to a datetime
     """
     df = pd.read_csv(
         os.path.join(config['data'],
@@ -102,10 +109,8 @@ def load_dataset(fill_nan='median', get_dates_dict=False):
     df = df[[DATETIME, TARGET]]
     df[DATETIME] = pd.to_datetime(df[DATETIME], utc=False)
     if fill_nan:
-        df = impute_missing(df,
-                            method=fill_nan,
-                            values_col=TARGET,
-                            datetime_col=DATETIME)
+        df = impute_missing(
+            df, method=fill_nan, values_col=TARGET, datetime_col=DATETIME)
     df = hourly_aggregate(df, freq=FREQ, datetime_col=DATETIME)
     if get_dates_dict:
         idx2date = {i: df.iloc[i][DATETIME] for i in range(df.shape[0])}
@@ -118,8 +123,8 @@ def impute_missing(df,
                    method='bfill',
                    values_col='P_plus',
                    datetime_col=DATETIME):
-    """
-    Fill missing values in the dataframe
+    """Fill missing values in the dataframe.
+
     :param df: the dataframe
     :param method: string that identifies how NaN values should be filled. Options are:
         -bfill: fill NaN value at index i with value at index i-1
@@ -131,6 +136,7 @@ def impute_missing(df,
     :param datetime_col: string that identifies the column of datetime in df
     :return: pandas.DataFrame with the filled values
     """
+
     def _group_values(df, datetime_col, values_col, by='D'):
         if by == 'D':
             df_copy = set_datetime_index(df, datetime_col).copy()
@@ -173,8 +179,8 @@ def impute_missing(df,
 
 
 def hourly_aggregate(df, freq='15T', datetime_col=DATETIME):
-    """
-    Resample the dataset using a different frequency.
+    """Resample the dataset using a different frequency.
+
     :param df: the dataframe
     :param freq: string that identifies the new frequency (e.g 15T is 15 minutes, 1H is one hour)
     :param datetime_col: string that identifies the column of datetime in df
@@ -187,159 +193,11 @@ def hourly_aggregate(df, freq='15T', datetime_col=DATETIME):
     return df
 
 
-def load_data(fill_nan=None,
-              preprocessing=True,
-              detrend=False,
-              exogenous_vars=False,
-              train_len=900 * SAMPLES_PER_DAY,
-              test_len=365 * SAMPLES_PER_DAY,
-              valid_len=0,
-              split_type='simple',
-              is_train=False,
-              use_prebuilt=True):
-    """
-    Create a split of the data according to the given dimensions for each set.
-    :param fill_nan: string that identifies how NaN values should be filled. Options are:
-        -bfill: fill NaN value at index i with value at index i-1
-        -ffill: fill NaN value at index i with value at index i+1
-        -mean: fill NaN value at index i  with the mean value over all dataset at the same hour,minute
-        -median: fill NaN value at index i  with the median value over all dataset at the same hour,minute
-        -drop: drop all rows with missing values
-    :param preprocessing: if True, standardize features using standrad scaler
-    :param detrend: if True, use train weekly statistics to detrend the time series.
-        (WORKS ONLY FOR split_type=simple or split_type=default when is_train=False)
-    :param exogenous_vars: if True, add exogenous features to the input data (date/time feature + holiday feature)
-    :param train_len: length of the train dataset
-    :param test_len: length of the test set
-    :param valid_len: length of the validation set
-    :param split_type: 'simple', 'multi' or 'default'.
-        - 'simple': See dts.utils.split.simple_split
-        - 'multi':  See dts.utils.split.multiple_split
-        - 'default': Uses 'simple' split for train-test, then divides training using the 'multi' approach.
-    :param use_prebuilt: if True, load already splitted data files from disk
-    :return: a dict having the following (key, value) pairs:
-        - train = training dataset, np.array of shape()
-        - test = test dataset, np.array of shape()
-        - scaler = the scaler used to preprocess the data
-        - trend  = None or the values that has to be added back after prediction if pdetrending has been used.
-    """
-    dataset = dict(
-        train=None,
-        test=None,
-        scaler=None,
-        trend=[None, None],
-    )
-    if valid_len == 0:
-        valid_len = int(0.1 * train_len)
-
-    if split_type == 'simple':
-        train_test_split = lambda x: simple_split(
-            x, train_len=None, valid_len=0, test_len=test_len)
-        train_valid_split = lambda x: simple_split(
-            train_test_split(x)[0],
-            train_len=len(train_test_split(x)[0]) - valid_len,
-            valid_len=0,
-            test_len=valid_len)
-    elif split_type == 'multi':
-        train_test_split = lambda x: multiple_splits(
-            x, train_len=train_len + valid_len, valid_len=0, test_len=test_len)
-        train_valid_split = lambda x: [
-            x[0][:, :train_len, :], None, x[0][:, train_len:, :]
-        ]
-    elif split_type == 'default':
-        train_test_split = lambda x: simple_split(
-            x, train_len=None, valid_len=0, test_len=365 * SAMPLES_PER_DAY)
-        train_valid_split = lambda x: multiple_splits(
-            train_test_split(x)[0],
-            train_len=5 * 31 * SAMPLES_PER_DAY,
-            valid_len=0,
-            test_len=31 * SAMPLES_PER_DAY)
-    else:
-        raise ValueError('{} is not a valid split type.'.format(split_type))
-
-    if not use_prebuilt:
-        logger.info(
-            'Fetching and preprocessing data. This will take a while...')
-        try:
-            df = load_dataset(fill_nan=fill_nan)
-        except FileNotFoundError:
-            logger.info(
-                'The dataset seems to be unavailable on your disk at {}. \n'
-                'Downloading...'.format(
-                    os.path.join(config['data'],
-                                 'UCI_household_power_consumption_synth.csv')))
-            download()
-            df = load_dataset(fill_nan=fill_nan)
-
-        if detrend:
-            if split_type == 'default' and not is_train:
-                df, trend_values = apply_detrend(
-                    df, df.shape[0] - 365 * SAMPLES_PER_DAY)
-                trend_values = train_test_split(
-                    np.expand_dims(trend_values, -1))[::2]
-            elif split_type == 'simple' and is_train:
-                df, trend_values = apply_detrend(df, train_len)
-                trend_values = train_valid_split(
-                    np.expand_dims(trend_values, -1))[::2]
-            elif split_type == 'simple':
-                df, trend_values = apply_detrend(df, train_len + valid_len)
-                trend_values = train_test_split(
-                    np.expand_dims(trend_values, -1))[::2]
-            else:
-                raise ValueError(
-                    'Detrend cannot be applied with this type of split.')
-            dataset['trend'] = trend_values
-
-        X = np.expand_dims(df[TARGET].values, -1)  #[N,1]
-        if preprocessing:
-            # init scaler using only information for training
-            scaler, _ = transform(X[:train_len])
-            # actual preprocess
-            _, X = transform(X, scaler)
-        else:
-            scaler = None
-        if exogenous_vars:
-            ex_feat = add_exogenous_variables(df, one_hot=True)
-            X = np.concatenate([X[:-1, :], ex_feat], axis=1)  # [N,F]
-
-        if is_train:
-            data = train_valid_split(X)
-        else:
-            data = train_test_split(X)
-
-        dataset['scaler'] = scaler
-        dataset['train'] = np.array(data[0], dtype=np.float32)
-        dataset['test'] = np.array(data[2], dtype=np.float32)
-        return dataset
-
-    else:
-        logger.info('Fetching preprocessed data from disk...')
-        try:
-            return load_prebuilt_data(split_type=split_type,
-                                      exogenous_vars=exogenous_vars,
-                                      detrend=detrend,
-                                      is_train=is_train,
-                                      dataset_name=NAME)
-        except FileNotFoundError:
-            logger.warn(
-                'An already preprocessed version of the data do not exists on disk. '
-                'The train/test data will be created now.')
-            return load_data(fill_nan,
-                             preprocessing,
-                             detrend,
-                             exogenous_vars,
-                             train_len,
-                             test_len,
-                             valid_len,
-                             split_type,
-                             is_train,
-                             use_prebuilt=False)
-
-
 def add_exogenous_variables(df, one_hot=True):
-    """
-    Augument the dataframe with exogenous features (date/time feature + holiday feature).
-    The feature's values can be kept as they are or they can be one hot encoded 
+    """Augument the dataframe with exogenous features (date/time feature +
+    holiday feature). The feature's values can be kept as they are or they can
+    be one hot encoded.
+
     :param df: the dataframe
     :param one_hot: if True, one hot encode all the features.
     :return: the matrix of exogenous features
@@ -360,14 +218,14 @@ def add_exogenous_variables(df, one_hot=True):
 
 
 def _add_holidays(df):
-    """
-    Add a binary variable to the dataset that takes value: 1 if the day is a holiday, 0 otherwise.
-    Main holidays for France are considered.
+    """Add a binary variable to the dataset that takes value: 1 if the day is a
+    holiday, 0 otherwise. Main holidays for France are considered.
+
     :param df: the datafrme
     :return: the agumented dtaframe
     """
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+        warnings.simplefilter('ignore')
         idx = []
         idx.extend(
             df[df.day == 1][df.month == 1].index.tolist())  # new year's eve
@@ -390,11 +248,11 @@ def _add_holidays(df):
 
 
 def transform(X, scaler=None):
-    """
-    Apply standard scaling to the input variables
-    :param X: 
+    """Apply standard scaling to the input variables.
+
+    :param X:
     :param scaler: the scaler to use, None if StandardScaler has to be used
-    :return: 
+    :return:
     """
     if scaler is None:
         scaler = StandardScaler()
@@ -417,9 +275,10 @@ def inverse_transform(X, scaler, trend=None):
 
 
 def apply_detrend(df, train_len):
-    """
-    Perform detrending on a time series by subtrating from each value of the dataset
-    the average value computed over the training dataset for each hour/minute/weekdays
+    """Perform detrending on a time series by subtrating from each value of the
+    dataset the average value computed over the training dataset for each
+    hour/minute/weekdays.
+
     :param df: the dataset
     :param test_len: test length,
     :return:
@@ -432,8 +291,7 @@ def apply_detrend(df, train_len):
     df_train_mean = \
         df_copy.iloc[:train_len].groupby(
             [df_copy.iloc[:train_len].index.hour,
-             df_copy.iloc[:train_len].index.minute])[TARGET]\
-            .mean()
+             df_copy.iloc[:train_len].index.minute])[TARGET].mean()
     # Remove mean values from dataset
     df_copy['trend'] = None
     for h in df_train_mean.index.levels[0]:

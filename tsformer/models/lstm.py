@@ -1,8 +1,17 @@
-import torch.nn as nn
+'''
+Author: jianzhnie
+Date: 2022-01-11 15:57:08
+LastEditTime: 2022-01-11 17:13:44
+LastEditors: jianzhnie
+Description:
+
+'''
 import torch
+import torch.nn as nn
 
 
 class LSTM(nn.Module):
+
     def __init__(self, input_size=1, hidden_layer_size=100, output_size=1):
         super().__init__()
         self.hidden_layer_size = hidden_layer_size
@@ -15,6 +24,7 @@ class LSTM(nn.Module):
                             torch.zeros(1, 1, self.hidden_layer_size))
 
     def forward(self, input_seq):
+
         lstm_out, self.hidden_cell = self.lstm(
             input_seq.view(len(input_seq), 1, -1), self.hidden_cell)
         predictions = self.linear(lstm_out.view(len(input_seq), -1))
