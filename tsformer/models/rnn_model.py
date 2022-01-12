@@ -101,7 +101,8 @@ class LSTM(nn.Module):
                                         self.hidden_size),
                             torch.zeros(self.num_layers, batch_size,
                                         self.hidden_size))
-        out, self.hidden_cell = self.lstm(x, self.hidden_cell)
+        out, self.hidden_cell = self.lstm(x)
+        out = out[:, -1, :]
         out = self.fc(out)
         return out
 
