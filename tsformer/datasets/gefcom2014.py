@@ -46,7 +46,7 @@ def download():
                          'UCI_household_power_consumption_synth.csv')))
 
 
-def process_csv():
+def process_csv(config):
     """Parse the datetime field, Sort the values accordingly and save the new
     dataframe to disk."""
     df = load_raw_dataset()
@@ -171,3 +171,8 @@ def apply_detrend(df, train_len):
         df_copy.loc[idxs, 'trend'] = mu
     df[TARGET] = df_copy[TARGET].values
     return df, np.float32(df_copy['trend'].values[:-1])
+
+
+if __name__ == '__main__':
+    config = {'data': '/home/robin/data'}
+    process_csv(config)
