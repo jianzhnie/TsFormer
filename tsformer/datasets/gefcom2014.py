@@ -16,7 +16,7 @@ NAME = 'gefcom'
 SAMPLES_PER_DAY = 24
 FREQ = 'H'
 TARGET = 'LOAD'
-DATETIME = 'datetime'
+DATETIME = 'date'
 config = {'data': 'gefcom'}
 
 
@@ -50,6 +50,8 @@ def process_csv(config):
     """Parse the datetime field, Sort the values accordingly and save the new
     dataframe to disk."""
     df = load_raw_dataset()
+    cols = [DATETIME] + ['w'+ str(i) for i in range(1, 26)] + ['LOAD']
+    df = df[cols]
     df.to_csv(
         os.path.join(config['data'], 'GEFCom2014/Load/gefcom2014.csv'),
         index=False)
@@ -174,5 +176,5 @@ def apply_detrend(df, train_len):
 
 
 if __name__ == '__main__':
-    config = {'data': '/home/robin/data'}
+    config = {'data': 'data'}
     process_csv(config)
