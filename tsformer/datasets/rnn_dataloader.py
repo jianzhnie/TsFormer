@@ -112,7 +112,7 @@ class RNNDataset(Dataset):
         s_begin = index
         s_end = s_begin + self.seq_len
         r_begin = s_end
-        r_end = r_begin + self.label_len
+        r_end = r_begin + self.pred_len
 
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
@@ -120,7 +120,7 @@ class RNNDataset(Dataset):
         return seq_x, seq_y
 
     def __len__(self):
-        return len(self.data_x) - self.seq_len - self.label_len + 1
+        return len(self.data_x) - self.seq_len - self.pred_len + 1
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
