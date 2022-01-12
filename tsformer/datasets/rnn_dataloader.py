@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-12 11:14:37
-LastEditTime: 2022-01-12 12:02:56
+LastEditTime: 2022-01-12 15:28:23
 LastEditors: jianzhnie
 Description:
 
@@ -120,7 +120,7 @@ class RNNDataset(Dataset):
         return seq_x, seq_y
 
     def __len__(self):
-        return len(self.data_x) - self.seq_len - 1
+        return len(self.data_x) - self.seq_len - self.label_len + 1
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
