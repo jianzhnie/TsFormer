@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-12 11:49:33
-LastEditTime: 2022-01-12 12:20:54
+LastEditTime: 2022-01-12 14:13:11
 LastEditors: jianzhnie
 Description:
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     test_data_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     # 加载模型
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')
     model = LSTM()
     model.to(device)
 
