@@ -72,7 +72,7 @@ class LSTM(nn.Module):
     def __init__(self,
                  input_size=1,
                  hidden_size=128,
-                 num_layers=2,
+                 num_layers=1,
                  output_size=1,
                  bidirectional=False):
         super(LSTM, self).__init__()
@@ -96,10 +96,13 @@ class LSTM(nn.Module):
             self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        out, _ = self.lstm(x)
-        out = out[:, -1, :]
+        batch_size = x.shape[0]
+        self.hidden_cell = (torch.zeros(self.num_layers, batch_size,
+                                        self.hidden_size),
+                            torch.zeros(self.num_layers, batch_size,
+                                        self.hidden_size))
+        out, self.hidden_cell = self.lstm(x, self.hidden_cell)
         out = self.fc(out)
-
         return out
 
 
