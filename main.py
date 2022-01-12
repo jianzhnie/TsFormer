@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-12 11:49:33
-LastEditTime: 2022-01-12 12:18:06
+LastEditTime: 2022-01-12 12:20:54
 LastEditors: jianzhnie
 Description:
 
@@ -21,11 +21,12 @@ if __name__ == '__main__':
     num_epoch = 5
     root_path = 'data/GEFCom2014/Load'
     target = 'LOAD'
-
+    size = [24 * 4 * 4, 24 * 4, 24 * 4]
     # 加载数据
     train_dataset = RNNDataset(
-        root_path=root_path, flag='train', target=target)
-    test_dataset = RNNDataset(root_path=root_path, flag='val', target=target)
+        root_path=root_path, flag='train', size=size, target=target)
+    test_dataset = RNNDataset(
+        root_path=root_path, flag='val', size=size, target=target)
     train_data_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True)
     test_data_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
