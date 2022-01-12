@@ -34,7 +34,7 @@ def load_raw_dataset(args):
         df = pd.concat([df, tmp], axis=0)
     df[DATETIME] = pd.date_range('01-01-2001', '12-01-2011', freq=FREQ)[1:]
     df = df[~pd.isnull(df.LOAD)].reset_index(drop=True)
-    cols = ['datetime'] + ['w'+ str(i) for i in range(1, 26)] + ['LOAD']
+    cols = [DATETIME] + ['w'+ str(i) for i in range(1, 26)] + ['LOAD']
     df = df[cols]
     return df
 
