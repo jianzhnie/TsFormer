@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-12 11:49:33
-LastEditTime: 2022-01-12 12:12:35
+LastEditTime: 2022-01-12 12:18:06
 LastEditors: jianzhnie
 Description:
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     model.to(device)
 
     # 训练过程
-    nll_loss = nn.NLLLoss()
+    mse_loss = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)  # 使用Adam优化器
 
     model.train()
@@ -47,7 +47,7 @@ if __name__ == '__main__':
             print(inputs.shape)
             print(targets.shape)
             log_probs = model(inputs)
-            loss = nll_loss(log_probs, targets)
+            loss = mse_loss(log_probs, targets)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
