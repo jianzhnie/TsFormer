@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-12 11:49:33
-LastEditTime: 2022-01-12 14:13:11
+LastEditTime: 2022-01-12 14:47:59
 LastEditors: jianzhnie
 Description:
 
@@ -44,9 +44,9 @@ if __name__ == '__main__':
     for epoch in range(num_epoch):
         total_loss = 0
         for batch in tqdm(train_data_loader, desc=f'Training Epoch {epoch}'):
-            inputs, targets = [x.to(device) for x in batch]
-            print(inputs.shape)
-            print(targets.shape)
+            inputs, targets = batch
+            inputs = inputs.float().to(device)
+            targets = targets.float().to(device)
             log_probs = model(inputs)
             loss = mse_loss(log_probs, targets)
             optimizer.zero_grad()
