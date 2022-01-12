@@ -16,7 +16,7 @@ NAME = 'gefcom'
 SAMPLES_PER_DAY = 24
 FREQ = 'H'
 TARGET = 'LOAD'
-DATETIME = 'datetime'
+DATETIME = 'date'
 config = {'data': 'gefcom'}
 
 
@@ -174,5 +174,5 @@ def apply_detrend(df, train_len):
 
 
 if __name__ == '__main__':
-    config = {'data': '/home/robin/data'}
+    config = {'data': 'data'}
     process_csv(config)
