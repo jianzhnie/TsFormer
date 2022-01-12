@@ -1,3 +1,11 @@
+'''
+Author: jianzhnie
+Date: 2022-01-11 17:45:54
+LastEditTime: 2022-01-11 19:18:43
+LastEditors: jianzhnie
+Description:
+
+'''
 import torch
 
 
@@ -5,6 +13,7 @@ class TriangularCausalMask():
 
     def __init__(self, B, L, device='cpu'):
         mask_shape = [B, 1, L, L]
+        # mask 上三角矩阵
         with torch.no_grad():
             self._mask = torch.triu(
                 torch.ones(mask_shape, dtype=torch.bool),
@@ -29,3 +38,8 @@ class ProbMask():
     @property
     def mask(self):
         return self._mask
+
+
+if __name__ == '__main__':
+    tm = TriangularCausalMask(3, 5)
+    print(tm._mask)
