@@ -3,8 +3,6 @@ import math
 import torch
 import torch.nn as nn
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 
 class DNN(nn.Module):
     """Deep Neural Network."""
@@ -95,16 +93,23 @@ class LSTM(nn.Module):
         else:
             self.fc = nn.Linear(hidden_size, output_size)
 
+    def init_hidden(self, batch_size, device):
+        h_0 = torch.zeros(
+            self.num_layers, batch_size, self.hidden_size, device=device)
+        c_0 = torch.zeros(
+            self.num_layers, batch_size, self.hidden_size, device=device)
+        return (h_0, c_0)
+
     def forward(self, x):
         batch_size = x.shape[0]
-        self.hidden_cell = (torch.zeros(self.num_layers, batch_size,
-                                        self.hidden_size),
-                            torch.zeros(self.num_layers, batch_size,
-                                        self.hidden_size))
-        out, self.hidden_cell = self.lstm(x)
-        out = out[:, -1, :]
-        out = self.fc(out)
-        return out
+        device = x.device
+        h_0, c_0 = self.init_hidden(batch_size, device)
+        lstm_out, (h_out, _) = self.lstm(x, (h_0, c_0))
+        # torch.Size([1, 32, 128]) ==> torch.Size([32, 128])
+        h_out = h_out.view(-1, self.hidden_size)
+        # torch.Size([32, 128]) ==> torch.Size([32, output_size])
+        h_out = self.fc(h_out)
+        return h_out
 
 
 class GRU(nn.Module):
