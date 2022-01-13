@@ -17,7 +17,6 @@ SAMPLES_PER_DAY = 24
 FREQ = 'H'
 TARGET = 'LOAD'
 DATETIME = 'date'
-config = {'data': 'gefcom'}
 
 
 def download():
@@ -50,7 +49,7 @@ def process_csv(config):
     """Parse the datetime field, Sort the values accordingly and save the new
     dataframe to disk."""
     df = load_raw_dataset()
-    cols = [DATETIME] + ['w'+ str(i) for i in range(1, 26)] + ['LOAD']
+    cols = [DATETIME] + ['w' + str(i) for i in range(1, 26)] + ['LOAD']
     df = df[cols]
     df.to_csv(
         os.path.join(config['data'], 'GEFCom2014/Load/gefcom2014.csv'),

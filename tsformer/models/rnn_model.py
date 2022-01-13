@@ -57,10 +57,10 @@ class RNN(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        out, _ = self.rnn(x)
-        out = out[:, -1, :]
-        out = self.fc(out)
-
+        rnn_out, hidden = self.rnn(x)
+        hidden = hidden.view(-1, self.hidden_size)
+        # torch.Size([32, 128]) ==> torch.Size([32, output_size])
+        out = self.fc(hidden)
         return out
 
 
@@ -80,6 +80,7 @@ class LSTM(nn.Module):
         self.num_layers = num_layers
         self.output_size = output_size
         self.bidirectional = bidirectional
+        self.num_directions = 2 if bidirectional else 1
 
         self.lstm = nn.LSTM(
             input_size=input_size,
@@ -95,16 +96,22 @@ class LSTM(nn.Module):
 
     def init_hidden(self, batch_size, device):
         h_0 = torch.zeros(
-            self.num_layers, batch_size, self.hidden_size, device=device)
+            self.num_layers * self.num_directions,
+            batch_size,
+            self.hidden_size,
+            device=device)
         c_0 = torch.zeros(
-            self.num_layers, batch_size, self.hidden_size, device=device)
+            self.num_layers * self.num_directions,
+            batch_size,
+            self.hidden_size,
+            device=device)
         return (h_0, c_0)
 
     def forward(self, x):
-        batch_size = x.shape[0]
-        device = x.device
-        h_0, c_0 = self.init_hidden(batch_size, device)
-        lstm_out, (h_out, _) = self.lstm(x, (h_0, c_0))
+        # batch_size = x.shape[0]
+        # device = x.device
+        # h_0, c_0 = self.init_hidden(batch_size, device)
+        lstm_out, (h_out, cout) = self.lstm(x)
         # torch.Size([1, 32, 128]) ==> torch.Size([32, 128])
         h_out = h_out.view(-1, self.hidden_size)
         # torch.Size([32, 128]) ==> torch.Size([32, output_size])
@@ -132,10 +139,11 @@ class GRU(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        out, _ = self.gru(x)
-        out = out[:, -1, :]
-        out = self.fc(out)
-
+        gru_out, hidden = self.gru(x)
+        # torch.Size([1, 32, 128]) ==> torch.Size([32, 128])
+        hidden = hidden.view(-1, self.hidden_size)
+        # torch.Size([32, 128]) ==> torch.Size([32, output_size])
+        out = self.fc(hidden)
         return out
 
 
