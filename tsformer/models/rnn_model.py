@@ -71,28 +71,21 @@ class LSTM(nn.Module):
                  input_size=1,
                  hidden_size=128,
                  num_layers=1,
-                 output_size=1,
-                 bidirectional=False):
+                 output_size=1):
         super(LSTM, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.output_size = output_size
-        self.bidirectional = bidirectional
-        self.num_directions = 2 if bidirectional else 1
 
         self.lstm = nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
             num_layers=num_layers,
-            batch_first=True,
-            bidirectional=bidirectional)
+            batch_first=True)
 
-        if self.bidirectional:
-            self.fc = nn.Linear(hidden_size * 2, output_size)
-        else:
-            self.fc = nn.Linear(hidden_size, output_size)
+        self.fc = nn.Linear(hidden_size, output_size)
 
     def init_hidden(self, batch_size, device):
         h_0 = torch.zeros(

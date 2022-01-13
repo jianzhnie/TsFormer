@@ -39,15 +39,17 @@ def download():
     process_csv()
     logger.info(
         'The original CSV has been parsed and is now available at {}'.format(
-            os.path.join(config['data'],
-                         'house_power/UCI_household_power_consumption_synth.csv')))
+            os.path.join(
+                config['data'],
+                'house_power/UCI_household_power_consumption_synth.csv')))
 
 
 def process_csv():
     """Parse the datetime field, Sort the values accordingly and save the new
     dataframe to disk."""
     df = pd.read_csv(
-        os.path.join(config['data'], 'house_power/household_power_consumption.txt'),
+        os.path.join(config['data'],
+                     'house_power/household_power_consumption.txt'),
         sep=';')
     df[DATETIME] = list(
         map(
@@ -66,7 +68,11 @@ def process_csv():
             return np.nan
 
     df[TARGET] = df[TARGET].apply(lambda x: parse(x))
-    df = impute_missing(df, method=config["fill_nan"], values_col=TARGET, datetime_col=DATETIME)
+    df = impute_missing(
+        df,
+        method=config['fill_nan'],
+        values_col=TARGET,
+        datetime_col=DATETIME)
     df.to_csv(
         os.path.join(config['data'],
                      'house_power/UCI_household_power_consumption_synth.csv'),
@@ -79,7 +85,8 @@ def load_raw_dataset():
     :return: pandas.DataFrame: sorted dataframe with parsed datetime
     """
     df = pd.read_csv(
-        os.path.join(config['data'], 'house_power/UCI_household_power_consumption.csv'),
+        os.path.join(config['data'],
+                     'house_power/UCI_household_power_consumption.csv'),
         sep=';')
     return df
 
@@ -319,7 +326,7 @@ def apply_detrend(df, train_len):
     df[TARGET] = df_copy[TARGET].values
     return df, np.float32(df_copy['trend'].values)
 
+
 if __name__ == '__main__':
-    config = {'data': 'data',
-            'fill_nan': 'median'}
+    config = {'data': 'data', 'fill_nan': 'median'}
     process_csv()
