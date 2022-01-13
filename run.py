@@ -65,6 +65,11 @@ parser.add_argument(
 parser.add_argument('--hidden_size', type=int, default=7, help='hidden size')
 parser.add_argument('--num_layers', type=int, default=7, help='num layers')
 parser.add_argument('--output_size', type=int, default=512, help='output size')
+parser.add_argument(
+    '--embed',
+    type=str,
+    default='timeF',
+    help='time features encoding, options:[timeF, fixed, learned]')
 
 # optimization
 parser.add_argument(
@@ -86,6 +91,10 @@ parser.add_argument(
     help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
 parser.add_argument('--loss', type=str, default='mse', help='loss function')
+parser.add_argument(
+    '--do_predict',
+    action='store_true',
+    help='whether to predict unseen future data')
 parser.add_argument(
     '--lradj', type=str, default='type1', help='adjust learning rate')
 parser.add_argument(
@@ -126,11 +135,9 @@ Exp = Exp_Main
 if args.is_training:
     for ii in range(args.itr):
         # setting record of experiments
-        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_{}'.format(
             args.model_id, args.model, args.data, args.features, args.seq_len,
-            args.label_len, args.pred_len, args.d_model, args.n_heads,
-            args.e_layers, args.d_layers, args.d_ff, args.factor, args.embed,
-            args.distil, args.des, ii)
+            args.label_len, args.pred_len, ii)
 
         exp = Exp(args)  # set experiments
         print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(
