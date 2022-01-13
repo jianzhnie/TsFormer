@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=1
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-13 15:25:34
+ # @LastEditTime: 2022-01-13 17:20:16
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -14,14 +14,14 @@ python -u run.py \
   --data_path ETTh1.csv \
   --model_id ETTh1_96_24 \
   --model rnn \
-  --data ETTh1 \
-  --features M \
+  --data RNNData \
+  --features MS \
   --seq_len 96 \
   --label_len 48 \
   --pred_len 24 \
-  --input_size 2 \
+  --input_size 7 \
   --hidden_size 256 \
   --num_layers 1 \
-  --output_size 48 \
+  --output_size 24 \
   --des 'Exp' \
-  --itr 1
+  --itr 4
