@@ -156,11 +156,9 @@ if args.is_training:
         torch.cuda.empty_cache()
 else:
     ii = 0
-    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_{}'.format(
         args.model_id, args.model, args.data, args.features, args.seq_len,
-        args.label_len, args.pred_len, args.d_model, args.n_heads,
-        args.e_layers, args.d_layers, args.d_ff, args.factor, args.embed,
-        args.distil, args.des, ii)
+        args.label_len, args.pred_len, ii)
 
     exp = Exp(args)  # set experiments
     print(
