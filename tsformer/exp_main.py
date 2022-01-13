@@ -27,7 +27,14 @@ class Exp_Main(Exp_Basic):
             'gru': GRU,
             'lstm': LSTM,
         }
-        model = model_dict[self.args.model].Model(self.args)
+
+        input_size = self.args.input_size
+        hidden_size = self.args.hidden_size
+        num_layers = self.args.num_layers
+        output_size = self.args.output_size
+
+        model = model_dict[self.args.model]
+        model = model(input_size, hidden_size, num_layers, output_size)
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
@@ -59,6 +66,7 @@ class Exp_Main(Exp_Basic):
                         outputs = self.model(batch_x)
                 else:
                     outputs = self.model(batch_x)
+                outputs = outputs.unsqueeze(-1)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len:,
                                   f_dim:].to(self.device)
@@ -102,7 +110,6 @@ class Exp_Main(Exp_Basic):
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
-
                 batch_y = batch_y.float().to(self.device)
 
                 # encoder - decoder
@@ -111,10 +118,11 @@ class Exp_Main(Exp_Basic):
                         outputs = self.model(batch_x)
                 else:
                     outputs = self.model(batch_x)
-
+                outputs = outputs.unsqueeze(-1)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 batch_y = batch_y[:, -self.args.pred_len:,
                                   f_dim:].to(self.device)
+
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
@@ -192,6 +200,7 @@ class Exp_Main(Exp_Basic):
                         outputs = self.model(batch_x)
                 else:
                     outputs = self.model(batch_x)
+                outputs = outputs.unsqueeze(-1)
                 f_dim = -1 if self.args.features == 'MS' else 0
 
                 batch_y = batch_y[:, -self.args.pred_len:,

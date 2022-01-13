@@ -59,7 +59,7 @@ class RNN(nn.Module):
     def forward(self, x):
         rnn_out, hidden = self.rnn(x)
         hidden = hidden.view(-1, self.hidden_size)
-        # torch.Size([32, 128]) ==> torch.Size([32, output_size])
+        # torch.Size([batch_size, 128]) ==> torch.Size([32, output_size])
         out = self.fc(hidden)
         return out
 

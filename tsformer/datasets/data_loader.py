@@ -4,7 +4,8 @@ import warnings
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
-from utils.timefeatures import time_features
+
+from tsformer.utils.timefeatures import time_features
 
 warnings.filterwarnings('ignore')
 
