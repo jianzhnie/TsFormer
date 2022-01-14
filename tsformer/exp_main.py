@@ -3,6 +3,7 @@ import time
 import warnings
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 from torch import optim
@@ -60,7 +61,6 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
-                # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         outputs = self.model(batch_x)
@@ -84,7 +84,7 @@ class Exp_Main(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
 
-        path = os.path.join(self.args.checkpoints, setting)
+        path = os.path.join(self.args.results_dir, 'checkpoints', setting)
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -162,7 +162,7 @@ class Exp_Main(Exp_Basic):
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        best_model_path = path + '/' + 'checkpoint.pth'
+        best_model_path = os.path.join(path, 'checkpoint.pth')
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model
@@ -173,12 +173,13 @@ class Exp_Main(Exp_Basic):
             print('loading model')
             self.model.load_state_dict(
                 torch.load(
-                    os.path.join('./checkpoints/' + setting,
+                    os.path.join(self.args.results_dir, 'checkpoints', setting,
                                  'checkpoint.pth')))
 
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
+        folder_path = os.path.join(self.args.results_dir, 'test_results',
+                                   setting)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -187,13 +188,6 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-
-                # decoder input
-                dec_inp = torch.zeros_like(
-                    batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat(
-                    [batch_y[:, :self.args.label_len, :], dec_inp],
-                    dim=1).float().to(self.device)
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
@@ -221,40 +215,35 @@ class Exp_Main(Exp_Basic):
                                         axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
+        # result save
         preds = np.array(preds)
         trues = np.array(trues)
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         print('test shape:', preds.shape, trues.shape)
-
-        # result save
-        folder_path = './results/' + setting + '/'
+        folder_path = os.path.join(self.args.results_dir, 'results', setting)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
-        f = open('result.txt', 'a')
-        f.write(setting + '  \n')
-        f.write('mse:{}, mae:{}'.format(mse, mae))
-        f.write('\n')
-        f.write('\n')
-        f.close()
-
-        np.save(folder_path + 'metrics.npy',
-                np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
-
-        return
+        print('mse:{}, mae:{},rmse:{}, mape:{}, mspe:{}'.format(
+            mae, mse, rmse, mape, mspe))
+        test_result_file = os.path.join(folder_path, 'result.txt')
+        with open(test_result_file, 'w+') as f:
+            f.write(setting + '  \n')
+            f.write('mse:{}, mae:{}, rmse:{}, mape:{}, mspe{}'.format(
+                mae, mse, rmse, mape, mspe))
+            f.write('\n')
+            f.write('\n')
+            f.close()
 
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
 
         if load:
-            path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + '/' + 'checkpoint.pth'
+            path = os.path.join(self.args.results_dir, 'checkpoints', setting)
+            best_model_path = os.path.join(path, 'checkpoint.pth')
             self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
@@ -264,13 +253,6 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y) in enumerate(pred_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
-                # decoder input
-                dec_inp = torch.zeros_like(
-                    batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat(
-                    [batch_y[:, :self.args.label_len, :], dec_inp],
-                    dim=1).float().to(self.device)
-                # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         outputs = self.model(batch_x)
@@ -281,12 +263,12 @@ class Exp_Main(Exp_Basic):
 
         preds = np.array(preds)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-
+        df = pd.DataFrame(preds)
         # result save
-        folder_path = './results/' + setting + '/'
+        folder_path = os.path.join(self.args.results_dir + setting)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        np.save(folder_path + 'real_prediction.npy', preds)
+        df.to_csv(folder_path + 'real_prediction.csv', index=False)
 
         return

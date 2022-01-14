@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=1
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-13 18:13:19
+ # @LastEditTime: 2022-01-14 12:13:12
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -23,6 +23,7 @@ python -u run.py \
   --hidden_size 256 \
   --num_layers 1 \
   --output_size 24 \
+  --train_epochs 1 \
   --learning_rate 0.001 \
   --des 'Exp' \
-  --itr 4
+  --itr 1

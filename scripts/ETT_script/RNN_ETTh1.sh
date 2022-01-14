@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=1
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-13 18:13:05
+ # @LastEditTime: 2022-01-14 11:00:42
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -25,4 +25,5 @@ python -u run.py \
   --output_size 24 \
   --learning_rate 0.001 \
   --des 'Exp' \
-  --itr 4
+  --checkpoints results/checkpoints/ \
+  --itr 1

@@ -46,9 +46,9 @@ parser.add_argument(
 parser.add_argument(
     '--freq', type=str, default='h', help='freq for time features encoding')
 parser.add_argument(
-    '--checkpoints',
+    '--results_dir',
     type=str,
-    default='./checkpoints/',
+    default='./results_dir/',
     help='location of model checkpoints')
 
 # forecasting task
