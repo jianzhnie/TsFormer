@@ -7,12 +7,13 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from torch import optim
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
 from tsformer.models.rnn_model import GRU, LSTM, RNN
 from tsformer.utils.metrics import metric
-from tsformer.utils.tools import EarlyStopping, adjust_learning_rate, visual
+from tsformer.utils.tools import EarlyStopping, visual
 
 warnings.filterwarnings('ignore')
 
@@ -40,6 +41,12 @@ class Exp_Main(Exp_Basic):
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
         return model
+
+    def _get_lr_scheduler(self, epochs):
+        optimizer = self._select_optimizer()
+        scheduler = CosineAnnealingLR(
+            optimizer, T_max=epochs, eta_min=1e-5, last_epoch=-1)
+        return scheduler
 
     def _get_data(self, flag):
         data_set, data_loader = data_provider(self.args, flag)
@@ -96,6 +103,7 @@ class Exp_Main(Exp_Basic):
 
         model_optim = self._select_optimizer()
         criterion = self._select_criterion()
+        lr_scheduler = self._get_lr_scheduler(self.args.train_epochs)
 
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
@@ -160,7 +168,8 @@ class Exp_Main(Exp_Basic):
                 print('Early stopping')
                 break
 
-            adjust_learning_rate(model_optim, epoch + 1, self.args)
+            # adjust_learning_rate(model_optim, epoch + 1, self.args)
+            lr_scheduler.step()
 
         best_model_path = os.path.join(path, 'checkpoint.pth')
         self.model.load_state_dict(torch.load(best_model_path))
@@ -213,7 +222,7 @@ class Exp_Main(Exp_Basic):
                                         axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]),
                                         axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    visual(gt, pd, os.path.join(folder_path, str(i) + '.png'))
 
         # result save
         preds = np.array(preds)
