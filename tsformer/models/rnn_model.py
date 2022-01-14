@@ -101,10 +101,26 @@ class LSTM(nn.Module):
         return (h_0, c_0)
 
     def forward(self, x):
+        self.batch_size = x.shape[0]
+        # forward pass through LSTM layer
+        # shape of lstm_out:  [batch_size, seq_length, hidden_dim]
+        # shape of self.hidden: (a, b) where a and b both have shape:  (num_layers, batch_size, hidden_dim)
+        lstm_out, (h_out, c_out) = self.lstm(x)
+        # Only take output from the final timestep
+        # Can pass on the entirety  lstm_out to the next layer if it is a seq2seq prediction
+        lstm_out = lstm_out[:, -1, :]
+        lstm_out = self.fc(lstm_out)
+
+        return lstm_out
+
+    def forward_(self, x):
+        # forward pass through LSTM layer
+        # shape of lstm_out:  [batch_size, seq_length, hidden_dim]
+        # shape of self.hidden: (a, b) where a and b both have shape:  (num_layers, batch_size, hidden_dim)
         # batch_size = x.shape[0]
         # device = x.device
         # h_0, c_0 = self.init_hidden(batch_size, device)
-        lstm_out, (h_out, cout) = self.lstm(x)
+        lstm_out, (h_out, c_out) = self.lstm(x)
         # torch.Size([1, 32, 128]) ==> torch.Size([32, 128])
         h_out = h_out.view(-1, self.hidden_size)
         # torch.Size([32, 128]) ==> torch.Size([32, output_size])
