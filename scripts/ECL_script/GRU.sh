@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-14 15:54:10
+ # @LastEditTime: 2022-01-14 15:54:19
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -13,7 +13,7 @@ python -u run.py \
       --root_path data/electricity/ \
       --data_path electricity.csv \
       --model_id ECL \
-      --model rnn \
+      --model gru \
       --data RNNData \
       --features MS \
       --seq_len 96 \

@@ -1,8 +1,8 @@
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-14 15:54:10
+ # @LastEditTime: 2022-01-14 15:54:16
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -13,7 +13,7 @@ python -u run.py \
       --root_path data/electricity/ \
       --data_path electricity.csv \
       --model_id ECL \
-      --model rnn \
+      --model lstm \
       --data RNNData \
       --features MS \
       --seq_len 96 \
