@@ -32,7 +32,7 @@ class Exp_Main(Exp_Basic):
 
         if self.args.model == 'rnn':
             model = RNN(input_size, hidden_size, num_layers, output_size)
-        elif self.model == 'lstm':
+        elif self.args.model == 'lstm':
             model = LSTM(input_size, hidden_size, num_layers, output_size)
         elif self.args.model == 'gru':
             model = GRU(input_size, hidden_size, num_layers, output_size)
