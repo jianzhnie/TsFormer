@@ -24,19 +24,18 @@ class Exp_Main(Exp_Basic):
         super(Exp_Main, self).__init__(args)
 
     def _build_model(self):
-        model_dict = {
-            'rnn': RNN,
-            'gru': GRU,
-            'lstm': LSTM,
-        }
 
         input_size = self.args.input_size
         hidden_size = self.args.hidden_size
         num_layers = self.args.num_layers
         output_size = self.args.output_size
 
-        model = model_dict[self.args.model]
-        model = model(input_size, hidden_size, num_layers, output_size)
+        if self.args.model == 'rnn':
+            model = RNN(input_size, hidden_size, num_layers, output_size)
+        elif self.model == 'lstm':
+            model = LSTM(input_size, hidden_size, num_layers, output_size)
+        elif self.args.model == 'gru':
+            model = GRU(input_size, hidden_size, num_layers, output_size)
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)

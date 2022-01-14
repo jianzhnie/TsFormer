@@ -330,3 +330,8 @@ def apply_detrend(df, train_len):
 if __name__ == '__main__':
     config = {'data': 'data', 'fill_nan': 'median'}
     process_csv()
+    df = load_dataset()
+    df.to_csv(
+        os.path.join(config['data'],
+                     'house_power/UCI_household_power_consumption_synth.csv'),
+        index=False)

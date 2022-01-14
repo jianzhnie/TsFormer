@@ -1,11 +1,12 @@
 '''
 Author: jianzhnie
 Date: 2022-01-11 16:25:58
-LastEditTime: 2022-01-11 16:54:56
+LastEditTime: 2022-01-14 17:21:05
 LastEditors: jianzhnie
 Description:
 
 '''
+import os
 from datetime import datetime
 
 from matplotlib import pyplot as plt
@@ -43,3 +44,37 @@ def plot(x, samples_per_day=96, save_at=None):
     if save_at is not None:
         plt.savefig('{}_{}'.format(save_at, today))
     plt.show()
+
+
+def plot_full(path, data, feature):
+    """Plot Full Graph of Energy Dataset."""
+    data.plot(y=feature, figsize=(16, 8))
+    plt.xlabel('DateTime', fontsize=10)
+    plt.xticks(rotation=45)
+    plt.ylabel(feature, fontsize=10)
+    plt.grid()
+    plt.title('{} Energy Prediction'.format(feature))
+    plt.savefig(os.path.join(path, '{} Energy Prediction.png'.format(feature)))
+    plt.show()
+
+
+def plot_pred_test(pred, actual, path, feature, model, step):
+    """Plot Test set Prediction."""
+    plt.figure(figsize=(10, 8))
+
+    plt.plot(pred, label='Pred')
+    plt.plot(actual, label='Actual')
+
+    plt.xlabel('Time', fontsize=18)
+    plt.ylabel('{}'.format(feature), fontsize=18)
+
+    plt.legend(loc='best')
+    plt.grid()
+
+    plt.title(
+        '{} Energy Prediction using {} and {}'.format(feature, model, step),
+        fontsize=18)
+    plt.savefig(
+        os.path.join(
+            path, '{} Energy Prediction using {} and {}.png'.format(
+                feature, model, step)))
