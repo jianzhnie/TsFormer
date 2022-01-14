@@ -45,7 +45,7 @@ class Exp_Main(Exp_Basic):
     def _get_lr_scheduler(self, epochs):
         optimizer = self._select_optimizer()
         scheduler = CosineAnnealingLR(
-            optimizer, T_max=epochs, eta_min=1e-5, last_epoch=-1)
+            optimizer, T_max=epochs, eta_min=0, last_epoch=-1)
         return scheduler
 
     def _get_data(self, flag):
@@ -159,9 +159,11 @@ class Exp_Main(Exp_Basic):
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
+            lr = lr_scheduler.get_last_lr()
+
             print(
-                'Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}'
-                .format(epoch + 1, train_steps, train_loss, vali_loss,
+                'Epoch: {0}, Lr:{1} |  Steps: {2} | Train Loss: {3:.7f} Vali Loss: {4:.7f} Test Loss: {5:.7f}'
+                .format(epoch + 1, lr, train_steps, train_loss, vali_loss,
                         test_loss))
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:

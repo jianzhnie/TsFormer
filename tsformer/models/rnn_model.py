@@ -56,12 +56,24 @@ class RNN(nn.Module):
 
         self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, x):
+    def forward_(self, x):
         rnn_out, hidden = self.rnn(x)
         hidden = hidden.view(-1, self.hidden_size)
         # torch.Size([batch_size, 128]) ==> torch.Size([32, output_size])
         out = self.fc(hidden)
         return out
+
+    def forward(self, x):
+        # forward pass through LSTM layer
+        # shape of lstm_out:  [batch_size, seq_length, hidden_dim]
+        # shape of self.hidden: (a, b) where a and b both have shape:  (num_layers, batch_size, hidden_dim)
+        rnn_out, hidden = self.rnn(x)
+        # Only take output from the final timestep
+        # Can pass on the entirety  lstm_out to the next layer if it is a seq2seq prediction
+        rnn_out = rnn_out[:, -1, :]
+        rnn_out = self.fc(rnn_out)
+
+        return rnn_out
 
 
 class LSTM(nn.Module):
@@ -101,7 +113,6 @@ class LSTM(nn.Module):
         return (h_0, c_0)
 
     def forward(self, x):
-        self.batch_size = x.shape[0]
         # forward pass through LSTM layer
         # shape of lstm_out:  [batch_size, seq_length, hidden_dim]
         # shape of self.hidden: (a, b) where a and b both have shape:  (num_layers, batch_size, hidden_dim)
