@@ -178,6 +178,7 @@ class AttentionalLSTM(nn.Module):
                  hidden_size,
                  num_layers,
                  output_size,
+                 dropout=0,
                  bidirectional=False):
         super(AttentionalLSTM, self).__init__()
 
@@ -193,6 +194,11 @@ class AttentionalLSTM(nn.Module):
 
         self.attn = nn.Linear(qkv, input_size)
         self.scale = math.sqrt(qkv)
+
+        if dropout > 0:
+            self.dropout = nn.Dropout(dropout)
+        else:
+            self.dropout = None
 
         self.lstm = nn.LSTM(
             input_size=input_size,
@@ -212,6 +218,10 @@ class AttentionalLSTM(nn.Module):
 
         dot_product = torch.matmul(Q, K.permute(0, 2, 1)) / self.scale
         scores = torch.softmax(dot_product, dim=-1)
+
+        if self.dropout is not None:
+            scores = self.dropout(scores)
+
         scaled_x = torch.matmul(scores, V) + x
 
         out = self.attn(scaled_x) + x

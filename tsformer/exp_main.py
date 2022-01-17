@@ -11,7 +11,8 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
-from tsformer.models.rnn_model import GRU, LSTM, RNN
+from tsformer.models.rnn_model import GRU, LSTM, RNN, AttentionalLSTM
+from tsformer.models.transformer import Transformer
 from tsformer.utils.metrics import metric
 from tsformer.utils.tools import EarlyStopping, visual
 
@@ -36,6 +37,25 @@ class Exp_Main(Exp_Basic):
             model = LSTM(input_size, hidden_size, num_layers, output_size)
         elif self.args.model == 'gru':
             model = GRU(input_size, hidden_size, num_layers, output_size)
+        elif self.args.model == 'attlstm':
+            model = AttentionalLSTM(
+                input_size=input_size,
+                qkv=input_size,
+                hidden_size=hidden_size,
+                num_layers=num_layers,
+                output_size=output_size)
+
+        elif self.args.model == 'transformer':
+
+            model = Transformer(
+                input_size=1,
+                hidden_dim=128,
+                output_size=96,
+                dim_feedforward=512,
+                num_head=4,
+                num_layers=4,
+                dropout=0.1,
+            )
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
