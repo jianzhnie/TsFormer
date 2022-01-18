@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
-from tsformer.models.rnn_model import GRU, LSTM, RNN, AttentionalLSTM
+from tsformer.models.rnn_model import CNN, GRU, LSTM, RNN, AttentionalLSTM
 from tsformer.models.transformer import Transformer
 from tsformer.utils.metrics import metric
 from tsformer.utils.tools import EarlyStopping, visual
@@ -31,6 +31,8 @@ class Exp_Main(Exp_Basic):
         num_layers = self.args.num_layers
         output_size = self.args.output_size
 
+        if self.args.model == 'cnn':
+            model = CNN(input_size, hidden_size, output_size)
         if self.args.model == 'rnn':
             model = RNN(input_size, hidden_size, num_layers, output_size)
         elif self.args.model == 'lstm':

@@ -26,14 +26,26 @@ class CNN(nn.Module):
     def __init__(self, input_size, hidden_dim, output_size):
         super(CNN, self).__init__()
 
-        self.main = nn.Sequential(
-            nn.Conv1d(
-                in_channels=input_size, out_channels=hidden_dim,
-                kernel_size=1), nn.ReLU(), nn.Flatten(),
-            nn.Linear(hidden_dim, 10), nn.Linear(10, output_size))
+        self.Conv1 = nn.Conv1d(
+            in_channels=input_size,
+            out_channels=hidden_dim,
+            kernel_size=3,
+            padding=1,
+            padding_mode='circular',
+            bias=False)
+
+        self.flatten = nn.Flatten()
+        self.relu = nn.ReLU()
+        self.fc1 = nn.Linear(hidden_dim * output_size, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, output_size)
 
     def forward(self, x):
-        out = self.main(x)
+        x = x.permute(0, 2, 1)
+        out = self.Conv1(x).transpose(1, 2)
+        out = self.relu(out)
+        out = self.flatten(out)
+        out = self.fc1(out)
+        out = self.fc2(out)
         return out
 
 

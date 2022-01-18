@@ -26,3 +26,7 @@ TsFormer is a toolbox that implement transformer models on Time series data
 - autoformer
 
 4. train and evaluate
+
+<p align="center">
+<img src="./docs/results.png" height = "550" alt="" align=left />
+</p>
