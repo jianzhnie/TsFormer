@@ -28,7 +28,7 @@ TsFormer is a toolbox that implement transformer models on Time series data
 4. TODO
 - [Spacetimeformer](https://github.com/QData/spacetimeformer)
 - [SCINet](https://github.com/cure-lab/SCINet)
-- [transformer](https://github.com/maxjcohen/transformer)
+- [Deep learning for time series forecasting](https://github.com/AIStream-Peelout/flow-forecast)
 
 
 5. train and evaluate
