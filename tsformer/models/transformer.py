@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-17 16:36:57
-LastEditTime: 2022-01-17 18:34:59
+LastEditTime: 2022-01-18 11:58:23
 LastEditors: jianzhnie
 Description:
 
@@ -30,6 +30,7 @@ class Transformer(nn.Module):
         self.value_embedding = TokenEmbedding(
             c_in=input_size, d_model=hidden_dim)
         self.dropout = nn.Dropout(p=dropout)
+        self.src_mask = None
 
         # 编码层：使用Transformer
         encoder_layer = nn.TransformerEncoderLayer(hidden_dim, num_head,
@@ -47,17 +48,24 @@ class Transformer(nn.Module):
         # 输出层
         self.output = nn.Linear(hidden_dim, output_size, bias=True)
 
-    def forward(self, inputs):
+    def forward(self, src):
         # 与LSTM 处理情况类似， 输入数据是 batch * seq_length
         # 需要转换成  seq_length * batch 的格式
-        inputs = torch.transpose(inputs, 0, 1)
-        inputs = self.value_embedding(inputs) + self.position_embedding(inputs)
+        src = torch.transpose(src, 0, 1)
+        if self.src_mask is None or self.src_mask.size(0) != len(src):
+            device = src.device
+            mask = self._generate_square_subsequent_mask(len(src)).to(device)
+            self.src_mask = mask
+        src = self.value_embedding(src) + self.position_embedding(src)
         # 根据序列长度生成 Padding Mask 矩阵
-        inputs = self.dropout(inputs)
-        hidden_states = self.encoder(inputs)
-        # idx == 0 is for classification
-        # 取第一个标记位置的输出作为分类层的输出
-        hidden_states = hidden_states[0, :, :]
+        src = self.dropout(src)
+        hidden_states = self.encoder(src, self.src_mask)
         output = self.output(hidden_states)
 
         return output
+
+    def _generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(
+            mask == 1, float(0.0))
+        return mask

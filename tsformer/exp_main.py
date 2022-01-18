@@ -49,11 +49,11 @@ class Exp_Main(Exp_Basic):
 
             model = Transformer(
                 input_size=1,
-                hidden_dim=128,
+                hidden_dim=768,
                 output_size=96,
                 dim_feedforward=512,
-                num_head=4,
-                num_layers=4,
+                num_head=12,
+                num_layers=1,
                 dropout=0.1,
             )
 
