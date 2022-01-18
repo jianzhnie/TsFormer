@@ -1,6 +1,14 @@
 export CUDA_VISIBLE_DEVICES=1
+###
+ # @Author: jianzhnie
+ # @Date: 2022-01-17 17:50:14
+ # @LastEditTime: 2022-01-17 18:35:54
+ # @LastEditors: jianzhnie
+ # @Description:
+ #
+###
 
-python -u run_autoformer.py \
+python -u run.py \
   --is_training 1 \
   --root_path ./data/ETT-small/ \
   --data_path ETTm1.csv \
