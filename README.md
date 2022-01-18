@@ -18,6 +18,9 @@ TsFormer is a toolbox that implement transformer models on Time series data
 - rnn
 - lstm
 - GRU
+- ESN
+- CNN
+- TCN
 - transformer
 - informer
 - autoformer

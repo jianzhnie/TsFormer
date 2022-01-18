@@ -259,12 +259,12 @@ class Exp_Main(Exp_Basic):
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{},rmse:{}, mape:{}, mspe:{}'.format(
-            mae, mse, rmse, mape, mspe))
+            mse, mae, rmse, mape, mspe))
         test_result_file = os.path.join(folder_path, 'result.txt')
         with open(test_result_file, 'w+') as f:
             f.write(setting + '  \n')
             f.write('mse:{}, mae:{}, rmse:{}, mape:{}, mspe{}'.format(
-                mae, mse, rmse, mape, mspe))
+                mse, mae, rmse, mape, mspe))
             f.write('\n')
             f.write('\n')
             f.close()
