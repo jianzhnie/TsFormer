@@ -31,6 +31,7 @@ TsFormer is a toolbox that implement transformer models on Time series data
 - [Deep learning for time series forecasting](https://github.com/AIStream-Peelout/flow-forecast)
 - [PyTorch Forecasting](https://github.com/jdb78/pytorch-forecasting)
 - [tsai](https://github.com/timeseriesAI/tsai)
+- [flow-forecast](https://github.com/AIStream-Peelout/flow-forecast)
 
 5. train and evaluate
 
