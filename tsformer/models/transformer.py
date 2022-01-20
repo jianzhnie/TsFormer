@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-17 16:36:57
-LastEditTime: 2022-01-18 11:58:23
+LastEditTime: 2022-01-20 15:52:30
 LastEditors: jianzhnie
 Description:
 
@@ -60,7 +60,8 @@ class Transformer(nn.Module):
         # 根据序列长度生成 Padding Mask 矩阵
         src = self.dropout(src)
         hidden_states = self.encoder(src, self.src_mask)
-        output = self.output(hidden_states)
+        output = self.decoder(src, hidden_states)
+        output = self.output(output)
 
         return output
 
