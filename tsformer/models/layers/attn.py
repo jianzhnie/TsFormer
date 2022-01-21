@@ -13,12 +13,10 @@ class FullAttention(nn.Module):
                  mask_flag=True,
                  factor=5,
                  scale=None,
-                 attention_dropout=0.1,
-                 output_attention=False):
+                 attention_dropout=0.1):
         super(FullAttention, self).__init__()
         self.scale = scale
         self.mask_flag = mask_flag
-        self.output_attention = output_attention
         self.dropout = nn.Dropout(attention_dropout)
 
     def forward(self, queries, keys, values, attn_mask):
@@ -36,10 +34,7 @@ class FullAttention(nn.Module):
         A = self.dropout(torch.softmax(scale * scores, dim=-1))
         V = torch.einsum('bhls,bshd->blhd', A, values)
 
-        if self.output_attention:
-            return (V.contiguous(), A)
-        else:
-            return (V.contiguous(), None)
+        return (V.contiguous(), A)
 
 
 class ProbAttention(nn.Module):
@@ -108,14 +103,12 @@ class ProbAttention(nn.Module):
         context_in[torch.arange(B)[:, None, None],
                    torch.arange(H)[None, :, None],
                    index, :] = torch.matmul(attn, V).type_as(context_in)
-        if self.output_attention:
-            attns = (torch.ones([B, H, L_V, L_V]) / L_V).type_as(attn).to(
-                attn.device)
-            attns[torch.arange(B)[:, None, None],
-                  torch.arange(H)[None, :, None], index, :] = attn
-            return (context_in, attns)
-        else:
-            return (context_in, None)
+
+        attns = (torch.ones([B, H, L_V, L_V]) / L_V).type_as(attn).to(
+            attn.device)
+        attns[torch.arange(B)[:, None, None],
+              torch.arange(H)[None, :, None], index, :] = attn
+        return (context_in, attns)
 
     def forward(self, queries, keys, values, attn_mask):
         B, L_Q, H, D = queries.shape
@@ -169,7 +162,6 @@ class AttentionLayer(nn.Module):
         self.value_projection = nn.Linear(d_model, d_values * n_heads)
         self.out_projection = nn.Linear(d_values * n_heads, d_model)
         self.n_heads = n_heads
-        self.mix = mix
 
     def forward(self, queries, keys, values, attn_mask):
         B, L, _ = queries.shape
@@ -181,8 +173,6 @@ class AttentionLayer(nn.Module):
         values = self.value_projection(values).view(B, S, H, -1)
 
         out, attn = self.inner_attention(queries, keys, values, attn_mask)
-        if self.mix:
-            out = out.transpose(2, 1).contiguous()
         out = out.view(B, L, -1)
 
         return self.out_projection(out), attn

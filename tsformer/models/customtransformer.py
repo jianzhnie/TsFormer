@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-21 18:12:18
+LastEditTime: 2022-01-21 18:36:18
 LastEditors: jianzhnie
 Description:
 
@@ -33,7 +33,7 @@ class Informer(nn.Module):
                  d_ffn: int = 512,
                  dropout=0.0,
                  embed='fixed',
-                 temp_depth=4,
+                 freq='h',
                  activation='gelu'):
 
         super(Informer, self).__init__()
@@ -41,9 +41,9 @@ class Informer(nn.Module):
         self.label_len = label_len
         self.c_out = c_out
         # Encoding
-        self.enc_embedding = DataEmbedding(enc_in, d_model, embed, temp_depth,
+        self.enc_embedding = DataEmbedding(enc_in, d_model, embed, freq,
                                            dropout)
-        self.dec_embedding = DataEmbedding(dec_in, d_model, embed, temp_depth,
+        self.dec_embedding = DataEmbedding(dec_in, d_model, embed, freq,
                                            dropout)
         # Attention
         enc_prob_attn = ProbAttention(False, factor, attention_dropout=dropout)
