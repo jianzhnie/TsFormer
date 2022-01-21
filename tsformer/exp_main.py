@@ -50,12 +50,13 @@ class Exp_Main(Exp_Basic):
         elif self.args.model == 'transformer':
 
             model = Transformer(
-                input_size=1,
+                input_features=input_size,
+                input_seq_len=96,
                 hidden_dim=768,
-                output_size=96,
+                output_seq_len=output_size,
                 dim_feedforward=512,
                 num_head=12,
-                num_layers=1,
+                num_layers=2,
                 dropout=0.1,
             )
 
