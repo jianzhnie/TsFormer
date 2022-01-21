@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-21 17:57:45
+LastEditTime: 2022-01-21 18:12:18
 LastEditors: jianzhnie
 Description:
 
@@ -19,43 +19,40 @@ from .layers.embed import DataEmbedding
 class Informer(nn.Module):
 
     def __init__(self,
-                 n_time_series: int,
+                 enc_in: int,
                  dec_in: int,
                  c_out: int,
-                 seq_len,
-                 label_len,
-                 out_len,
-                 factor=5,
-                 d_model=512,
-                 n_heads=8,
-                 num_encoder_layers=3,
-                 num_decoder_layers=2,
-                 d_ffn=512,
+                 seq_len: int,
+                 label_len: int,
+                 output_len: int,
+                 factor: int = 5,
+                 d_model: int = 512,
+                 n_heads: int = 8,
+                 num_encoder_layers: int = 3,
+                 num_decoder_layers: int = 2,
+                 d_ffn: int = 512,
                  dropout=0.0,
-                 attn='prob',
                  embed='fixed',
                  temp_depth=4,
-                 activation='gelu',
-                 device=torch.device('cuda:0')):
+                 activation='gelu'):
 
         super(Informer, self).__init__()
-        self.pred_len = out_len
+        self.pred_len = output_len
         self.label_len = label_len
-        self.attn = attn
         self.c_out = c_out
         # Encoding
-        self.enc_embedding = DataEmbedding(n_time_series, d_model, embed,
-                                           temp_depth, dropout)
+        self.enc_embedding = DataEmbedding(enc_in, d_model, embed, temp_depth,
+                                           dropout)
         self.dec_embedding = DataEmbedding(dec_in, d_model, embed, temp_depth,
                                            dropout)
         # Attention
         enc_prob_attn = ProbAttention(False, factor, attention_dropout=dropout)
 
         # Encoder
-        attn_layer = AttentionLayer(enc_prob_attn, d_model, n_heads)
         conv_layer = ConvLayer(d_model)
         encoder_norm = nn.LayerNorm(d_model)
-        encoder_layer = EncoderLayer(attn_layer, d_model, d_ffn, dropout,
+        enc_attn_layer = AttentionLayer(enc_prob_attn, d_model, n_heads)
+        encoder_layer = EncoderLayer(enc_attn_layer, d_model, d_ffn, dropout,
                                      activation)
 
         self.encoder = Encoder(encoder_layer, conv_layer, num_encoder_layers,
