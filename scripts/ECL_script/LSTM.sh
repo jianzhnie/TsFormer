@@ -1,8 +1,8 @@
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=0
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-13 15:20:03
- # @LastEditTime: 2022-01-14 15:54:16
+ # @LastEditTime: 2022-01-24 10:28:23
  # @LastEditors: jianzhnie
  # @Description:
  #

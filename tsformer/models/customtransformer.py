@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-21 18:36:18
+LastEditTime: 2022-01-24 11:02:12
 LastEditors: jianzhnie
 Description:
 
@@ -24,12 +24,12 @@ class Informer(nn.Module):
                  c_out: int,
                  seq_len: int,
                  label_len: int,
-                 output_len: int,
+                 pred_len: int,
                  factor: int = 5,
                  d_model: int = 512,
                  n_heads: int = 8,
-                 num_encoder_layers: int = 3,
-                 num_decoder_layers: int = 2,
+                 e_layers: int = 3,
+                 d_layers: int = 2,
                  d_ffn: int = 512,
                  dropout=0.0,
                  embed='fixed',
@@ -37,7 +37,7 @@ class Informer(nn.Module):
                  activation='gelu'):
 
         super(Informer, self).__init__()
-        self.pred_len = output_len
+        self.pred_len = pred_len
         self.label_len = label_len
         self.c_out = c_out
         # Encoding
@@ -55,7 +55,7 @@ class Informer(nn.Module):
         encoder_layer = EncoderLayer(enc_attn_layer, d_model, d_ffn, dropout,
                                      activation)
 
-        self.encoder = Encoder(encoder_layer, conv_layer, num_encoder_layers,
+        self.encoder = Encoder(encoder_layer, conv_layer, e_layers,
                                encoder_norm)
 
         # Decoder
@@ -67,14 +67,12 @@ class Informer(nn.Module):
             self_attn_layer=dec_attn_layer1,
             cross_attn_layer=dec_attn_layer2,
             d_model=d_model,
-            d_ffn=d_model,
+            d_ffn=d_ffn,
             dropout=dropout,
             activation=activation)
         decoder_norm = nn.LayerNorm(d_model)
         self.decoder = Decoder(
-            decoder_layer,
-            num_layers=num_decoder_layers,
-            norm_layer=decoder_norm)
+            decoder_layer, num_layers=d_layers, norm_layer=decoder_norm)
 
         self.projection = nn.Linear(d_model, c_out, bias=True)
 
@@ -110,7 +108,7 @@ class Informer(nn.Module):
 
         dec_out = self.dec_embedding(x_dec, x_mark_dec)
         dec_out = self.decoder(
-            dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
+            dec_out, enc_out, tgt_mask=dec_self_mask, memory_mask=dec_enc_mask)
         dec_out = self.projection(dec_out)
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]
 
@@ -168,6 +166,7 @@ class EncoderLayer(nn.Module):
             in_channels=d_ffn, out_channels=d_model, kernel_size=1)
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(dropout)
 
@@ -262,8 +261,7 @@ class DecoderLayer(nn.Module):
         tgt = tgt + self.dropout2(tgt2)
         tgt = self.norm2(tgt)
 
-        tgt2 = self.dropout3(
-            self.self.activation(self.conv1(tgt.transpose(1, 2))))
+        tgt2 = self.dropout3(self.activation(self.conv1(tgt.transpose(1, 2))))
         tgt2 = self.dropout4(self.conv2(tgt2).transpose(1, 2))
         tgt = self.norm3(tgt + tgt2)
 

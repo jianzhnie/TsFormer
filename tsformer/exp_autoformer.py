@@ -9,6 +9,7 @@ from torch import optim
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
+from tsformer.models.customtransformer import Informer
 from tsformer.models.transformer import Transformer
 from tsformer.utils.metrics import metric
 from tsformer.utils.tools import EarlyStopping, adjust_learning_rate, visual
@@ -22,15 +23,47 @@ class Exp_Main(Exp_Basic):
         super(Exp_Main, self).__init__(args)
 
     def _build_model(self):
-        model = Transformer(
-            input_size=7,
-            hidden_dim=128,
-            output_size=24,
-            dim_feedforward=512,
-            num_head=2,
-            num_layers=2,
-            dropout=0.1,
-        )
+
+        enc_in = self.args.enc_in
+        dec_in = self.args.dec_in
+        c_out = self.args.c_out
+        seq_len = self.args.seq_len
+        label_len = self.args.label_len
+        pred_len = self.args.pred_len
+        factor = self.args.factor
+        d_model = self.args.d_model
+        n_heads = self.args.n_heads
+        e_layers = self.args.e_layers
+        d_layers = self.args.d_layers
+        d_ffn = self.args.d_ffn
+        dropout = self.args.dropout
+
+        if self.args.model == 'transformer':
+            model = Transformer(
+                input_size=7,
+                hidden_dim=128,
+                output_size=24,
+                dim_feedforward=512,
+                num_head=2,
+                num_layers=2,
+                dropout=0.1,
+            )
+
+        elif self.args.model == 'informer':
+            model = Informer(
+                enc_in=enc_in,
+                dec_in=dec_in,
+                c_out=c_out,
+                seq_len=seq_len,
+                label_len=label_len,
+                pred_len=pred_len,
+                factor=factor,
+                d_model=d_model,
+                n_heads=n_heads,
+                e_layers=e_layers,
+                d_layers=d_layers,
+                d_ffn=d_ffn,
+                dropout=dropout)
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
