@@ -73,7 +73,7 @@ parser.add_argument(
     '--e_layers', type=int, default=2, help='num of encoder layers')
 parser.add_argument(
     '--d_layers', type=int, default=1, help='num of decoder layers')
-parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
+parser.add_argument('--d_ffn', type=int, default=2048, help='dimension of fcn')
 parser.add_argument(
     '--moving_avg', type=int, default=25, help='window size of moving average')
 parser.add_argument('--factor', type=int, default=1, help='attn factor')
@@ -162,7 +162,7 @@ if args.is_training:
         setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
             args.model_id, args.model, args.data, args.features, args.seq_len,
             args.label_len, args.pred_len, args.d_model, args.n_heads,
-            args.e_layers, args.d_layers, args.d_ff, args.factor, args.embed,
+            args.e_layers, args.d_layers, args.d_ffn, args.factor, args.embed,
             args.distil, args.des, ii)
 
         exp = Exp(args)  # set experiments
