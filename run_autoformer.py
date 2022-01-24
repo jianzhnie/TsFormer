@@ -44,14 +44,11 @@ parser.add_argument(
 parser.add_argument(
     '--target', type=str, default='OT', help='target feature in S or MS task')
 parser.add_argument(
-    '--freq',
-    type=str,
-    default='h',
-    help='freq for time features encoding, options:[s:secondly]')
+    '--freq', type=str, default='h', help='freq for time features encoding')
 parser.add_argument(
-    '--checkpoints',
+    '--results_dir',
     type=str,
-    default='./checkpoints/',
+    default='./results_dir/',
     help='location of model checkpoints')
 
 # forecasting task
@@ -159,11 +156,9 @@ Exp = Exp_Main
 if args.is_training:
     for ii in range(args.itr):
         # setting record of experiments
-        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+        setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_{}'.format(
             args.model_id, args.model, args.data, args.features, args.seq_len,
-            args.label_len, args.pred_len, args.d_model, args.n_heads,
-            args.e_layers, args.d_layers, args.d_ffn, args.factor, args.embed,
-            args.distil, args.des, ii)
+            args.label_len, args.pred_len, ii)
 
         exp = Exp(args)  # set experiments
         print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(
@@ -182,11 +177,9 @@ if args.is_training:
         torch.cuda.empty_cache()
 else:
     ii = 0
-    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+    setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_{}'.format(
         args.model_id, args.model, args.data, args.features, args.seq_len,
-        args.label_len, args.pred_len, args.d_model, args.n_heads,
-        args.e_layers, args.d_layers, args.d_ff, args.factor, args.embed,
-        args.distil, args.des, ii)
+        args.label_len, args.pred_len, ii)
 
     exp = Exp(args)  # set experiments
     print(
