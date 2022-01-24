@@ -39,6 +39,10 @@ class Exp_Main(Exp_Basic):
         d_layers = self.args.d_layers
         d_ffn = self.args.d_ffn
         dropout = self.args.dropout
+        embed = self.args.embed
+        # freq = self.args.freq
+        # activation = self.args.activation
+        # distil = self.args.distil
 
         if self.args.model == 'transformer':
             model = Transformer(
@@ -65,7 +69,8 @@ class Exp_Main(Exp_Basic):
                 e_layers=e_layers,
                 d_layers=d_layers,
                 d_ffn=d_ffn,
-                dropout=dropout)
+                dropout=dropout,
+                embed=embed)
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
