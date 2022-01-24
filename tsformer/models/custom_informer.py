@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-24 11:12:11
+LastEditTime: 2022-01-24 15:05:51
 LastEditors: jianzhnie
 Description:
 
@@ -87,11 +87,11 @@ class Informer(nn.Module):
                 dec_enc_mask=None):
         """
 
-        :param x_enc: The core tensor going into the model. Of dimension (batch_size, seq_len, n_time_series)
+        :param x_enc: The core tensor going into the model. Of dimension (batch_size, seq_len, enc_in)
         :type x_enc: torch.Tensor
         :param x_mark_enc: A tensor with the relevant datetime information. (batch_size, seq_len, n_datetime_feats)
         :type x_mark_enc: torch.Tensor
-        :param x_dec: The datetime tensor information. Has dimension batch_size, seq_len, n_time_series
+        :param x_dec: The datetime tensor information. Has dimension batch_size, seq_len, enc_in
         :type x_dec: torch.Tensor
         :param x_mark_dec: A tensor with the relevant datetime information. (batch_size, seq_len, n_datetime_feats)
         :type x_mark_dec: torch.Tensor

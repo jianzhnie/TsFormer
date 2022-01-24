@@ -84,9 +84,8 @@ class RNN(nn.Module):
         rnn_out, hidden = self.rnn(x)
         # Only take output from the final timestep
         # Can pass on the entirety  rnn_out to the next layer if it is a seq2seq prediction
-        rnn_out = rnn_out[:, -1, :]
         rnn_out = self.fc(rnn_out)
-
+        rnn_out = rnn_out[:, -self.output_size:, :]  # [B, L, D]
         return rnn_out
 
 

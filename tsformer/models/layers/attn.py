@@ -139,7 +139,7 @@ class ProbAttention(nn.Module):
         context, attn = self._update_context(context, values, scores_top,
                                              index, L_Q, attn_mask)
 
-        return context.transpose(2, 1).contiguous(), attn
+        return context.contiguous(), attn
 
 
 class AttentionLayer(nn.Module):
