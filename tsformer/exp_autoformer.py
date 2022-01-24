@@ -9,7 +9,7 @@ from torch import optim
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
-from tsformer.models.customtransformer import Informer
+from tsformer.models.custom_informer import Informer
 from tsformer.models.transformer import Transformer
 from tsformer.utils.metrics import metric
 from tsformer.utils.tools import EarlyStopping, adjust_learning_rate, visual

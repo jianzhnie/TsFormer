@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-24 11:02:12
+LastEditTime: 2022-01-24 11:12:11
 LastEditors: jianzhnie
 Description:
 
@@ -37,6 +37,7 @@ class Informer(nn.Module):
                  activation='gelu'):
 
         super(Informer, self).__init__()
+        self.seq_len = seq_len
         self.pred_len = pred_len
         self.label_len = label_len
         self.c_out = c_out
