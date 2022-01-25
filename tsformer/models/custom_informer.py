@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-21 11:15:51
-LastEditTime: 2022-01-24 17:30:08
+LastEditTime: 2022-01-25 10:14:49
 LastEditors: jianzhnie
 Description:
 
@@ -207,17 +207,17 @@ class Encoder(nn.Module):
         if self.conv_layers is not None:
             for attn_layer, conv_layer in zip(self.attn_layers,
                                               self.conv_layers):
-                output = attn_layer(src, attn_mask=attn_mask)
-                output = conv_layer(output)
-            output = self.attn_layers[-1](output, attn_mask=attn_mask)
+                src = attn_layer(src, attn_mask=attn_mask)
+                src = conv_layer(src)
+            src = self.attn_layers[-1](src, attn_mask=attn_mask)
         else:
             for attn_layer in self.attn_layers:
-                output = attn_layer(output, attn_mask=attn_mask)
+                src = attn_layer(src, attn_mask=attn_mask)
 
         if self.norm is not None:
-            output = self.norm(output)
+            src = self.norm(src)
 
-        return output
+        return src
 
 
 class DecoderLayer(nn.Module):

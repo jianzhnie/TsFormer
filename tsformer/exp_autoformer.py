@@ -46,14 +46,20 @@ class Exp_Main(Exp_Basic):
 
         if self.args.model == 'transformer':
             model = Transformer(
-                input_size=7,
-                hidden_dim=128,
-                output_size=24,
-                dim_feedforward=512,
-                num_head=2,
-                num_layers=2,
-                dropout=0.1,
-            )
+                enc_in=enc_in,
+                dec_in=dec_in,
+                c_out=c_out,
+                seq_len=seq_len,
+                label_len=label_len,
+                pred_len=pred_len,
+                factor=factor,
+                d_model=d_model,
+                n_heads=n_heads,
+                e_layers=e_layers,
+                d_layers=d_layers,
+                d_ffn=d_ffn,
+                dropout=dropout,
+                embed=embed)
 
         elif self.args.model == 'informer':
             model = Informer(
