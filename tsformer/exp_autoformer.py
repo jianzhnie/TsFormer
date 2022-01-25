@@ -11,6 +11,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from tsformer.datasets.data_factory import data_provider
 from tsformer.exp_basic import Exp_Basic
+from tsformer.models.autoformer import AutoFormer
 from tsformer.models.custom_informer import Informer
 from tsformer.models.transformer import Transformer
 from tsformer.utils.metrics import metric
@@ -40,6 +41,7 @@ class Exp_Main(Exp_Basic):
         d_ffn = self.args.d_ffn
         dropout = self.args.dropout
         embed = self.args.embed
+        moving_avg = self.args.moving_avg
         # freq = self.args.freq
         # activation = self.args.activation
         # distil = self.args.distil
@@ -77,6 +79,24 @@ class Exp_Main(Exp_Basic):
                 d_ffn=d_ffn,
                 dropout=dropout,
                 embed=embed)
+
+        elif self.args.model == 'autoformer':
+            model = AutoFormer(
+                enc_in=enc_in,
+                dec_in=dec_in,
+                c_out=c_out,
+                seq_len=seq_len,
+                label_len=label_len,
+                pred_len=pred_len,
+                factor=factor,
+                d_model=d_model,
+                n_heads=n_heads,
+                e_layers=e_layers,
+                d_layers=d_layers,
+                d_ffn=d_ffn,
+                dropout=dropout,
+                embed=embed,
+                moving_avg=moving_avg)
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
