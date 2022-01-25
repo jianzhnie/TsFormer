@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-25 10:43:34
-LastEditTime: 2022-01-25 17:00:26
+LastEditTime: 2022-01-25 18:08:42
 LastEditors: jianzhnie
 Description:
 
@@ -146,7 +146,7 @@ class AutoFormer(nn.Module):
             memory_mask=dec_enc_mask,
             trend=trend_init)
 
-        seasonal_part = self.projection(dec_out)
+        seasonal_part = self.projection(seasonal_part)
         # final
         dec_out = trend_part + seasonal_part
 
