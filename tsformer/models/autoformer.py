@@ -1,7 +1,7 @@
 '''
 Author: jianzhnie
 Date: 2022-01-25 10:43:34
-LastEditTime: 2022-01-25 18:08:42
+LastEditTime: 2022-01-26 10:34:04
 LastEditors: jianzhnie
 Description:
 
@@ -32,7 +32,7 @@ class AutoFormer(nn.Module):
                  d_ffn: int = 512,
                  dropout=0.0,
                  embed='fixed',
-                 moving_avg=None,
+                 moving_avg=25,
                  freq='h',
                  activation='gelu'):
 
@@ -224,6 +224,8 @@ class EncoderLayer(nn.Module):
         self.activation = F.relu if activation == 'relu' else F.gelu
 
     def forward(self, src, attn_mask=None):
+        """src: batch_size * seq_length * hidden_size
+        """
         src2 = self.attention(src, src, src, attn_mask=attn_mask)[0]
         src = src + self.dropout1(src2)
         src, _ = self.decomp1(src)
@@ -314,5 +316,5 @@ class Decoder(nn.Module):
             trend = trend + residual_trend
 
         if self.norm is not None:
-            output = self.norm(tgt)
-        return output, trend
+            tgt = self.norm(tgt)
+        return tgt, trend
