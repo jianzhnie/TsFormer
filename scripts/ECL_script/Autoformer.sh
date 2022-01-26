@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=0
 ###
  # @Author: jianzhnie
  # @Date: 2022-01-11 10:19:15
- # @LastEditTime: 2022-01-25 18:10:13
+ # @LastEditTime: 2022-01-26 13:08:11
  # @LastEditors: jianzhnie
  # @Description:
  #
@@ -35,7 +35,7 @@ python -u run_autoformer.py \
         --model_id ECL \
         --model autoformer \
         --data custom \
-        --features MS \
+        --features M \
         --seq_len 96 \
         --label_len 48 \
         --pred_len 96 \
